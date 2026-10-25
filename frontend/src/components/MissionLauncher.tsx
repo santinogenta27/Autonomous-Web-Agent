@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Building2, FlaskConical, Globe, Plane, Play, RotateCcw, ShoppingBag, Sparkles, Square, Star } from "lucide-react";
+import { Building2, FlaskConical, Globe, Plane, Play, RotateCcw, ShoppingBag, Sparkles, Square } from "lucide-react";
 import { useState } from "react";
 import type { AgentStatus } from "../hooks/useAgentStream";
 import type { RunMissionRequest } from "../lib/types";
@@ -97,7 +97,6 @@ export function MissionLauncher({ status, onLaunch, onStop, onReset, maxSteps, o
               <div className="flex items-center gap-2">
                 <Icon className={`h-4 w-4 ${active ? "text-emerald-300" : "text-zinc-500 group-hover:text-zinc-300"}`} />
                 <span className="text-xs font-medium text-zinc-200">{preset.title}</span>
-                {featured && <Star className="ml-auto h-3.5 w-3.5 shrink-0 fill-amber-300 text-amber-300" />}
               </div>
               <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-zinc-500">{preset.prompt.startsWith(`${preset.title}: `) ? preset.prompt.slice(preset.title.length + 2) : preset.prompt}</p>
             </motion.button>
