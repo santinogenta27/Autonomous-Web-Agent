@@ -1,10 +1,20 @@
 import { motion } from "framer-motion";
-import { Building2, FlaskConical, Globe, Plane, Play, RotateCcw, ShoppingBag, Square } from "lucide-react";
+import { Building2, FlaskConical, Globe, Plane, Play, RotateCcw, ShoppingBag, Sparkles, Square, Star } from "lucide-react";
 import { useState } from "react";
 import type { AgentStatus } from "../hooks/useAgentStream";
 import type { RunMissionRequest } from "../lib/types";
 
 export const PRESETS = [
+  {
+    id: "producthunt",
+    icon: Sparkles,
+    title: "Top AI Tools (Product Hunt)",
+    url: "https://www.producthunt.com/",
+    featured: true,
+    maxSteps: 4,
+    prompt:
+      "The page already shows today's Product Hunt leaderboard. Identify the 3 most-upvoted AI products launching today and, for each, report: name, tagline (what it does) and upvotes. All values are visible in the current page state, so do not navigate, scroll, open product pages or run JavaScript: call done in your first step with the 3 rows.",
+  },
   {
     id: "flights",
     icon: Plane,
@@ -59,10 +69,11 @@ export function MissionLauncher({ status, onLaunch, onStop, onReset, maxSteps, o
         <span className="font-mono text-[10px] text-zinc-600">ctrl + enter to launch</span>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2">
         {PRESETS.map((preset) => {
           const Icon = preset.icon;
           const active = mission === preset.prompt;
+          const featured = "featured" in preset && preset.featured;
           return (
             <motion.button
               key={preset.id}
@@ -73,18 +84,22 @@ export function MissionLauncher({ status, onLaunch, onStop, onReset, maxSteps, o
               onClick={() => {
                 setMission(preset.prompt);
                 setTargetUrl(preset.url);
+                if ("maxSteps" in preset) onMaxStepsChange(preset.maxSteps);
               }}
               className={`group rounded-lg border p-3 text-left transition disabled:opacity-50 ${
                 active
                   ? "border-emerald-400/40 bg-emerald-400/[0.07]"
-                  : "border-white/[0.06] bg-white/[0.02] hover:border-white/15"
+                  : featured
+                    ? "border-amber-300/25 bg-gradient-to-br from-amber-300/[0.06] to-transparent hover:border-amber-300/45"
+                    : "border-white/[0.06] bg-white/[0.02] hover:border-white/15"
               }`}
             >
               <div className="flex items-center gap-2">
                 <Icon className={`h-4 w-4 ${active ? "text-emerald-300" : "text-zinc-500 group-hover:text-zinc-300"}`} />
                 <span className="text-xs font-medium text-zinc-200">{preset.title}</span>
+                {featured && <Star className="ml-auto h-3.5 w-3.5 shrink-0 fill-amber-300 text-amber-300" />}
               </div>
-              <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-zinc-500">{preset.prompt.split(": ")[1]}</p>
+              <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-zinc-500">{preset.prompt.startsWith(`${preset.title}: `) ? preset.prompt.slice(preset.title.length + 2) : preset.prompt}</p>
             </motion.button>
           );
         })}

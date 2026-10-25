@@ -78,7 +78,7 @@ export function Header(props: HeaderProps) {
           <div className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-50">
             GhostOperator <span className="font-mono text-[10px] font-normal text-zinc-500">AETHERBROWSER</span>
           </div>
-          <div className="text-xs text-zinc-500">Autonomous browser intelligence</div>
+          <div className="text-xs text-zinc-500">Autonomous Web Agent</div>
         </div>
       </div>
 
