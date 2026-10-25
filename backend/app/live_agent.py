@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import logging
+import random
 import time
 from typing import Any
 
@@ -13,6 +14,8 @@ from browser_use.agent.views import AgentOutput
 from browser_use.browser.views import BrowserStateSummary
 from browser_use.llm import ChatAnthropic, ChatGoogle
 from browser_use.llm.base import BaseChatModel
+from browser_use.llm.exceptions import ModelProviderError
+from browser_use.llm.messages import BaseMessage
 
 from .config import settings
 from .hub import hub
@@ -21,9 +24,17 @@ from .storage import extract_records, finalize_recording, mission_dir, save_reco
 
 logger = logging.getLogger("ghostoperator.live")
 
-FRAME_INTERVAL_SECONDS = 1.0
+FRAME_INTERVAL_SECONDS = 1.5
 
 OUTPUT_CONTRACT = """
+EFFICIENCY RULES (speed is a primary objective):
+- Solve the task in the fewest possible steps. Every step costs an LLM round-trip.
+- Batch predictable action sequences into ONE step: e.g. input_text into a search box + send_keys Enter, or fill every
+  form field and then click submit. Only split steps when you must see the result of an action before choosing the next.
+- Prefer direct URLs (search/filter query strings) over clicking through menus when the URL pattern is obvious.
+- If the needed data is already visible in the current page state, extract it and call `done` immediately.
+- Do not wait unless the page is visibly still loading. Keep thinking, memory and goals to one short sentence each.
+
 When you call the `done` action, the `text` field MUST contain the extracted results as a JSON array of flat objects
 inside a ```json code fence (one object per row, consistent keys, string or number values only), followed by a single
 sentence summary. If nothing could be extracted, return an empty JSON array and explain why in the summary.
@@ -33,6 +44,26 @@ Dismiss cookie banners and pop-ups when they block the page. Never sign in, purc
 
 class LLMConfigurationError(RuntimeError):
     pass
+
+
+class ResilientChatGoogle(ChatGoogle):
+    """ChatGoogle that also retries SDK-level 429/5xx errors.
+
+    browser-use 0.13 only retries errors already raised as ModelProviderError; google-genai's ServerError (503
+    "high demand") is wrapped and re-raised without retry, which burns a whole agent step per transient error.
+    """
+
+    async def ainvoke(self, messages: list[BaseMessage], output_format: Any = None, **kwargs: Any) -> Any:
+        for attempt in range(self.max_retries):
+            try:
+                return await super().ainvoke(messages, output_format, **kwargs)
+            except ModelProviderError as exc:
+                if exc.status_code not in self.retryable_status_codes or attempt == self.max_retries - 1:
+                    raise
+                delay = min(self.retry_base_delay * (2**attempt), self.retry_max_delay) + random.uniform(0, 0.5)
+                logger.warning("Gemini returned %s, retrying in %.1fs (attempt %d/%d)", exc.status_code, delay, attempt + 1, self.max_retries)
+                await asyncio.sleep(delay)
+        raise RuntimeError("Retry loop exited without a result")
 
 
 def build_llm(provider: Provider) -> tuple[BaseChatModel, str]:
@@ -45,7 +76,10 @@ def build_llm(provider: Provider) -> tuple[BaseChatModel, str]:
     thinking: dict[str, Any] = {}
     if settings.gemini_thinking_level in {"minimal", "low", "medium", "high"} and "gemini-2" not in settings.gemini_model:
         thinking["thinking_level"] = settings.gemini_thinking_level
-    return ChatGoogle(model=settings.gemini_model, api_key=settings.gemini_api_key, temperature=0.2, retry_base_delay=3.0, **thinking), settings.gemini_model
+    llm = ResilientChatGoogle(
+        model=settings.gemini_model, api_key=settings.gemini_api_key, temperature=0.2, retry_base_delay=2.0, max_retries=5, **thinking
+    )
+    return llm, settings.gemini_model
 
 
 def model_for(provider: Provider) -> str:
@@ -190,6 +224,10 @@ class LiveMission:
             window_size={"width": 1366, "height": 860},
             highlight_elements=True,
             keep_alive=False,
+            wait_between_actions=settings.wait_between_actions,
+            minimum_wait_page_load_time=settings.min_page_load_wait,
+            wait_for_network_idle_page_load_time=settings.network_idle_wait,
+            interaction_highlight_duration=0.4,
         )
         self.agent = Agent(
             task=compose_task(self.record.mission, self.record.target_url),
@@ -202,6 +240,10 @@ class LiveMission:
             enable_signal_handler=False,
             llm_timeout=settings.llm_timeout,
             step_timeout=settings.llm_timeout + 60,
+            max_actions_per_step=settings.max_actions_per_step,
+            use_thinking=settings.agent_use_thinking,
+            llm_screenshot_size=settings.llm_screenshot_size,
+            vision_detail_level="low",
         )
         self.record.model = model
         self.record.status = "running"
