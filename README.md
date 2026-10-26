@@ -1,6 +1,28 @@
+<div align="center">
+
+  ## 🌐 Watch Live Demo (1m 35s)
+
+  <a href="https://www.youtube.com/watch?v=XUK7UIzj-vI" target="_blank">
+    <img src="https://img.youtube.com/vi/XUK7UIzj-vI/maxresdefault.jpg" alt="GhostOperator Autonomous Agent Demo" width="100%" />
+  </a>
+
+  <br/><br/>
+
+  [![Watch on YouTube](https://img.shields.io/badge/YouTube-Watch%20Demo%20in%20Action-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=XUK7UIzj-vI)
+
+  <p><sub>▶️ <em>Click the image above to watch GhostOperator executing live e-commerce purchases, UI interactions, and deep extraction.</em></sub></p>
+
+</div>
+
+
+
+
+
+
+
 # ⚡ # GhostOperator an Autonomous Web Agent
 
-🌐 **Demo** [[https://nexus-agent-rub3.onrender.com](https://nexus-agent-rub3.onrender.com](https://youtu.be/XUK7UIzj-vI?si=wb5gvHSkHvOUIDMm))
+🌐 **Demo** https://youtu.be/XUK7UIzj-vI?si=wb5gvHSkHvOUIDMm
 
 # GhostOperator
 An autonomous browser agent. Give it an objective. It opens a real Chromium and loops through a
