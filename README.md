@@ -1,3 +1,5 @@
+DEMO: https://youtu.be/XUK7UIzj-vI?si=wb5gvHSkHvOUIDMm
+
 # GhostOperator · AetherBrowser
 
 An autonomous browser agent. Give it an objective. It opens a real Chromium and loops through a
