@@ -1,6 +1,6 @@
 <div align="center">
 
-  ## 🌐 Watch Live Demo (1m 35s)
+  ## 🌐 Watch Demo (1m 35s)
 
   <a href="https://www.youtube.com/watch?v=XUK7UIzj-vI" target="_blank">
     <img src="https://img.youtube.com/vi/XUK7UIzj-vI/maxresdefault.jpg" alt="GhostOperator Autonomous Agent Demo" width="100%" />
