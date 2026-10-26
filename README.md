@@ -10,7 +10,7 @@
 
   [![Watch on YouTube](https://img.shields.io/badge/YouTube-Watch%20Demo%20in%20Action-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=XUK7UIzj-vI)
 
-  <p><sub>▶️ <em>Click the image above to watch GhostOperator executing live e-commerce purchases, UI interactions, and deep extraction.</em></sub></p>
+  
 
 </div>
 
