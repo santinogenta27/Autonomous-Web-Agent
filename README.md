@@ -1,7 +1,8 @@
-DEMO: https://youtu.be/XUK7UIzj-vI?si=wb5gvHSkHvOUIDMm
+# ⚡ # GhostOperator an Autonomous Web Agent
 
-# GhostOperator · AetherBrowser
+🌐 **Demo** [[https://nexus-agent-rub3.onrender.com](https://nexus-agent-rub3.onrender.com](https://youtu.be/XUK7UIzj-vI?si=wb5gvHSkHvOUIDMm))
 
+# GhostOperator
 An autonomous browser agent. Give it an objective. It opens a real Chromium and loops through a
 **PERCEIVE → REASON → ACT → VALIDATE** cycle, streaming every phase to a live dashboard over
 WebSockets. When it finishes, it saves structured data (JSON and CSV) and a video recording.
